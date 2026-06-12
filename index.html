@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Guardiões da Maré</title>
+<style>
+body{
+margin:0;
+overflow:hidden;
+font-family:Arial;
+}
+#ceu{
+height:35vh;
+background:linear-gradient(#87CEEB,#BFEFFF);
+}
+#mar{
+position:relative;
+height:65vh;
+background:linear-gradient(#3fa9f5,#004a99);
+}
+#barco{
+position:absolute;
+top:-20px;
+left:50px;
+font-size:50px;
+}
+.lixo{
+position:absolute;
+font-size:30px;
+}
+#hud{
+position:absolute;
+top:10px;
+left:10px;
+background:white;
+padding:10px;
+border-radius:10px;
+}
+#msg{
+position:absolute;
+top:50%;
+width:100%;
+text-align:center;
+font-size:40px;
+color:white;
+display:none;
+}
+</style>
+</head>
+<body>
+<div id="hud">
+💰 <span id="coins">0</span><br>
+🗑️ <span id="trash">0</span>/10<br>
+A/D mover • F pescar
+</div>
+<div id="ceu"></div>
+<div id="mar">
+<div id="barco">🚤</div>
+</div>
+<div id="msg">🌊 Oceano Limpo! 🌊</div>
+<script>
+const mar = document.getElementById("mar");
+const barco = document.getElementById("barco");
+let x = 50;
+let moedas = 0;
+let coletados = 0;
+const emojis = ["🍼","🥫","🛞","📦","🗑️"];
+for(let i=0;i<10;i++){
+let lixo=document.createElement("div");
+lixo.className="lixo";
+lixo.innerHTML=emojis[Math.floor(Math.random()*emojis.length)];
+lixo.style.left=(100+Math.random()*1000)+"px";
+lixo.style.top=(50+Math.random()*300)+"px";
+mar.appendChild(lixo);
+}
+document.addEventListener("keydown",e=>{
+if(e.key==="a"){
+x-=30;
+}
+if(e.key==="d"){
+x+=30;
+}
+barco.style.left=x+"px";
+if(e.key==="f"){
+document.querySelectorAll(".lixo").forEach(lixo=>{
+let lx=parseInt(lixo.style.left);
+if(Math.abs(lx-x)<60){
+lixo.remove();
+moedas+=10;
+coletados++;
+document.getElementById("coins").textContent=moedas;
+document.getElementById("trash").textContent=coletados;
+if(document.querySelectorAll(".lixo").length===0){
+document.getElementById("msg").style.display="block";
+}
+}
+});
+}
+});
+</script>
+</body>
+</html>
+
