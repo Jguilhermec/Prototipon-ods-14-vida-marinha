@@ -1,103 +1,263 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Guardiões da Maré</title>
-<style>
-body{
-margin:0;
-overflow:hidden;
-font-family:Arial;
-}
-#ceu{
-height:35vh;
-background:linear-gradient(#87CEEB,#BFEFFF);
-}
-#mar{
-position:relative;
-height:65vh;
-background:linear-gradient(#3fa9f5,#004a99);
-}
-#barco{
-position:absolute;
-top:-20px;
-left:50px;
-font-size:50px;
-}
-.lixo{
-position:absolute;
-font-size:30px;
-}
-#hud{
-position:absolute;
-top:10px;
-left:10px;
-background:white;
-padding:10px;
-border-radius:10px;
-}
-#msg{
-position:absolute;
-top:50%;
-width:100%;
-text-align:center;
-font-size:40px;
-color:white;
-display:none;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guardiões da Maré</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+        
+        /* Céu com degradê de fim de tarde/pôr do sol suave */
+        #ceu {
+            height: 40vh;
+            background: linear-gradient(to bottom, #1a6485, #6fb1cc, #ffdfb0);
+            position: relative;
+        }
+
+        /* Sol ao fundo */
+        #ceu::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 70%;
+            width: 120px;
+            height: 120px;
+            background: #ffeaa7;
+            border-radius: 50%;
+            blur: filter(20px);
+            box-shadow: 0 0 40px #ffb443;
+            opacity: 0.8;
+        }
+
+        /* Mar Dinâmico */
+        #mar {
+            position: relative;
+            height: 60vh;
+            background: linear-gradient(to bottom, #107896, #0a4e69, #052c3d);
+            overflow: hidden;
+        }
+
+        /* Linha da água/Onda superior para realismo */
+        #linha-agua {
+            position: absolute;
+            top: -10px;
+            left: 0;
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(2px);
+            z-index: 2;
+        }
+
+        /* Barco ajustado perfeitamente na linha d'água e flutuando */
+        #barco-container {
+            position: absolute;
+            top: -45px; /* Ajuste preciso para a base do barco tocar a água */
+            left: 50px;
+            font-size: 55px;
+            transition: left 0.2s ease-out, transform 0.2s ease;
+            z-index: 10;
+            animation: flutuar 3s ease-in-out infinite;
+            transform-origin: bottom center;
+        }
+
+        /* Espelhamento do barco para o lado que navega */
+        .olhando-esquerda {
+            transform: scaleX(-1);
+        }
+
+        /* Animação física de flutuação */
+        @keyframes flutuar {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(6px) rotate(3deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+
+        /* Lixo com física de boiar */
+        .lixo {
+            position: absolute;
+            font-size: 32px;
+            cursor: pointer;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+            animation: boiarLixo 4s ease-in-out infinite;
+            transition: all 0.3s ease;
+        }
+
+        @keyframes boiarLixo {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(8deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+
+        /* Efeito de sumir ao coletar */
+        .coletado {
+            transform: scale(0) translateY(-50px) !important;
+            opacity: 0;
+        }
+
+        /* HUD Moderno e Clean */
+        #hud {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 15px 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 100;
+            font-weight: bold;
+            color: #2c3e50;
+            border: 1px solid rgba(255,255,255,0.4);
+            line-height: 1.6;
+        }
+
+        .contadores {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .contadores span {
+            color: #0b6623;
+        }
+
+        .tutoriais {
+            font-size: 12px;
+            color: #7f8c8d;
+            border-top: 1px solid #ddd;
+            margin-top: 8px;
+            padding-top: 5px;
+        }
+
+        /* Mensagem de Vitória Estilizada */
+        #msg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            color: #107896;
+            padding: 30px 60px;
+            border-radius: 20px;
+            font-size: 35px;
+            font-weight: bold;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+            display: none;
+            z-index: 1000;
+            animation: aparecer 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes aparecer {
+            from { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+    </style>
 </head>
 <body>
+
 <div id="hud">
-💰 <span id="coins">0</span><br>
-🗑️ <span id="trash">0</span>/10<br>
-A/D mover • F pescar
+    <div class="contadores">💰 Moedas: <span id="coins">0</span></div>
+    <div class="contadores">🗑️ Limpo: <span id="trash">0</span>/10</div>
+    <div class="tutoriais">⌨️ Controles: <b>A / D</b> movem • <b>F</b> coleta o lixo</div>
 </div>
+
 <div id="ceu"></div>
 <div id="mar">
-<div id="barco">🚤</div>
+    <div id="linha-agua"></div>
+    <!-- Container para mover e animar o barco ao mesmo tempo sem bugar -->
+    <div id="barco-container">🛶</div>
 </div>
-<div id="msg">🌊 Oceano Limpo! 🌊</div>
+
+<div id="msg">
+    🌊 Oceano Limpo! 🌊
+    <div style="font-size: 18px; margin-top: 10px; color: #555;">Obrigado por salvar a vida marinha!</div>
+</div>
+
 <script>
 const mar = document.getElementById("mar");
-const barco = document.getElementById("barco");
-let x = 50;
+const barcoContainer = document.getElementById("barco-container");
+let x = 100;
 let moedas = 0;
 let coletados = 0;
-const emojis = ["🍼","🥫","🛞","📦","🗑️"];
-for(let i=0;i<10;i++){
-let lixo=document.createElement("div");
-lixo.className="lixo";
-lixo.innerHTML=emojis[Math.floor(Math.random()*emojis.length)];
-lixo.style.left=(100+Math.random()*1000)+"px";
-lixo.style.top=(50+Math.random()*300)+"px";
-mar.appendChild(lixo);
+const totalLixos = 10;
+const emojis = ["🍼","🥫","🛞","📦","🗑️","🍾"];
+
+// Gerar lixo espalhado de forma mais realista pelo mapa
+for(let i = 0; i < totalLixos; i++) {
+    let lixo = document.createElement("div");
+    lixo.className = "lixo";
+    lixo.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
+    
+    // Posição horizontal ao longo da tela
+    lixo.style.left = (150 + (i * (window.innerWidth - 300) / totalLixos) + (Math.random() * 50 - 25)) + "px";
+    
+    // Profundidades variadas (boiar em alturas diferentes no mar)
+    lixo.style.top = (40 + Math.random() * 250) + "px"; 
+    
+    // Delay aleatório na animação para não boiarem todos iguais e duros
+    lixo.style.animationDelay = (Math.random() * 2) + "s";
+    
+    mar.appendChild(lixo);
 }
-document.addEventListener("keydown",e=>{
-if(e.key==="a"){
-x-=30;
-}
-if(e.key==="d"){
-x+=30;
-}
-barco.style.left=x+"px";
-if(e.key==="f"){
-document.querySelectorAll(".lixo").forEach(lixo=>{
-let lx=parseInt(lixo.style.left);
-if(Math.abs(lx-x)<60){
-lixo.remove();
-moedas+=10;
-coletados++;
-document.getElementById("coins").textContent=moedas;
-document.getElementById("trash").textContent=coletados;
-if(document.querySelectorAll(".lixo").length===0){
-document.getElementById("msg").style.display="block";
-}
-}
-});
-}
+
+document.addEventListener("keydown", e => {
+    // Limites de tela para o barco não sumir
+    const limiteEsquerda = 10;
+    const limiteDireita = window.innerWidth - 80;
+
+    if (e.key === "a" || e.key === "A") {
+        if (x > limiteEsquerda) {
+            x -= 35;
+            barcoContainer.classList.add("olhando-esquerda"); // Vira o barco para a esquerda
+        }
+    }
+    if (e.key === "d" || e.key === "D") {
+        if (x < limiteDireita) {
+            x += 35;
+            barcoContainer.classList.remove("olhando-esquerda"); // Vira o barco para a direita
+        }
+    }
+    
+    // Atualiza posição do barco
+    barcoContainer.style.left = x + "px";
+
+    // Mecânica de Coleta (Pescar)
+    if (e.key === "f" || e.key === "F") {
+        document.querySelectorAll(".lixo:not(.coletado)").forEach(lixo => {
+            let lx = parseInt(lixo.style.left);
+            let ly = parseInt(lixo.style.top);
+            
+            // O barco pesca o lixo se estiver perto na horizontal (raio de 70px)
+            // Lixos muito profundos exigem que o barco passe exatamente por cima
+            if (Math.abs(lx - x) < 70) {
+                lixo.classList.add("coletado");
+                
+                // Remove do HTML após a animação de sumir terminar
+                setTimeout(() => { lixo.remove(); }, 300);
+
+                moedas += 10;
+                coletados++;
+                
+                document.getElementById("coins").textContent = moedas;
+                document.getElementById("trash").textContent = coletados;
+
+                // Condição de vitória
+                if (coletados === totalLixos) {
+                    document.getElementById("msg").style.display = "block";
+                }
+            }
+        });
+    }
 });
 </script>
 </body>
 </html>
-
