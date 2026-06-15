@@ -32,7 +32,6 @@
             height: 120px;
             background: #ffeaa7;
             border-radius: 50%;
-            blur: filter(20px);
             box-shadow: 0 0 40px #ffb443;
             opacity: 0.8;
         }
@@ -60,7 +59,7 @@
         /* Barco ajustado perfeitamente na linha d'água e flutuando */
         #barco-container {
             position: absolute;
-            top: -45px; /* Ajuste preciso para a base do barco tocar a água */
+            top: -45px; 
             left: 50px;
             font-size: 55px;
             transition: left 0.2s ease-out, transform 0.2s ease;
@@ -118,6 +117,7 @@
             color: #2c3e50;
             border: 1px solid rgba(255,255,255,0.4);
             line-height: 1.6;
+            display: none; /* Só aparece quando o jogo começa */
         }
 
         .contadores {
@@ -160,9 +160,154 @@
             from { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
             to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
         }
+
+        /* --- TELA INICIAL / MENU --- */
+        #tela-inicial {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(11, 56, 74, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            padding: 20px;
+            transition: opacity 0.5s ease;
+        }
+
+        .menu-container {
+            background: rgba(255, 255, 255, 0.95);
+            color: #2c3e50;
+            max-width: 550px;
+            width: 100%;
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            text-align: center;
+            animation: aparecer 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .menu-container h1 {
+            color: #107896;
+            margin-top: 0;
+            font-size: 38px;
+            margin-bottom: 10px;
+        }
+
+        .subtitulo {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-bottom: 25px;
+        }
+
+        .secao-info {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: left;
+            border: 1px solid #e9ecef;
+        }
+
+        .secao-info h3 {
+            margin-top: 0;
+            color: #107896;
+            font-size: 18px;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 5px;
+        }
+
+        .secao-info p {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #4b5563;
+            margin-bottom: 15px;
+        }
+
+        .grid-controles {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .controle-item {
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .tecla {
+            background: #e2e8f0;
+            border-bottom: 3px solid #cbd5e1;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            color: #334155;
+            font-family: monospace;
+        }
+
+        .btn-jogar {
+            background: linear-gradient(135deg, #107896, #0a4e69);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(16, 120, 150, 0.4);
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .btn-jogar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 120, 150, 0.6);
+            background: linear-gradient(135deg, #148fa3, #0d5b7a);
+        }
+
+        .btn-jogar:active {
+            transform: translateY(1px);
+        }
     </style>
 </head>
 <body>
+
+<!-- TELA INICIAL (MENU) -->
+<div id="tela-inicial">
+    <div class="menu-container">
+        <h1>Guardiões da Maré 🌊</h1>
+        <div class="subtitulo">Sua missão é proteger a vida marinha!</div>
+        
+        <div class="secao-info">
+            <h3>📖 Como Funciona</h3>
+            <p>O oceano foi poluído por resíduos plásticos e detritos tóxicos. Navegue com a sua canoa pelas águas e recolha todo o lixo flutuante antes que cause danos irreparáveis à fauna aquática. Cada material retirado rende recompensas!</p>
+            
+            <h3>🕹️ Controles</h3>
+            <div class="grid-controles">
+                <div class="controle-item">
+                    <span class="tecla">A</span> ou <span class="tecla">D</span>
+                    <span>Mover Canoa</span>
+                </div>
+                <div class="controle-item">
+                    <span class="tecla">F</span>
+                    <span>Coletar Lixo</span>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-jogar" id="btn-iniciar">Começar Missão 🛶</button>
+    </div>
+</div>
 
 <div id="hud">
     <div class="contadores">💰 Moedas: <span id="coins">0</span></div>
@@ -173,7 +318,6 @@
 <div id="ceu"></div>
 <div id="mar">
     <div id="linha-agua"></div>
-    <!-- Container para mover e animar o barco ao mesmo tempo sem bugar -->
     <div id="barco-container">🛶</div>
 </div>
 
@@ -185,11 +329,16 @@
 <script>
 const mar = document.getElementById("mar");
 const barcoContainer = document.getElementById("barco-container");
+const telaInicial = document.getElementById("tela-inicial");
+const hud = document.getElementById("hud");
+const btnIniciar = document.getElementById("btn-iniciar");
+
 let x = 100;
 let moedas = 0;
 let coletados = 0;
 const totalLixos = 10;
 const emojis = ["🍼","🥫","🛞","📦","🗑️","🍾"];
+let jogoIniciado = false;
 
 // Gerar lixo espalhado de forma mais realista pelo mapa
 for(let i = 0; i < totalLixos; i++) {
@@ -209,7 +358,20 @@ for(let i = 0; i < totalLixos; i++) {
     mar.appendChild(lixo);
 }
 
+// Ação para começar o jogo ao clicar no botão
+btnIniciar.addEventListener("click", () => {
+    telaInicial.style.opacity = "0";
+    setTimeout(() => {
+        telaInicial.style.display = "none";
+        hud.style.display = "block"; // Mostra o HUD do jogo
+        jogoIniciado = true; // Ativa os controles
+    }, 500);
+});
+
 document.addEventListener("keydown", e => {
+    // Se o jogo não tiver começado, ignora as teclas de controle
+    if (!jogoIniciado) return;
+
     // Limites de tela para o barco não sumir
     const limiteEsquerda = 10;
     const limiteDireita = window.innerWidth - 80;
@@ -234,10 +396,8 @@ document.addEventListener("keydown", e => {
     if (e.key === "f" || e.key === "F") {
         document.querySelectorAll(".lixo:not(.coletado)").forEach(lixo => {
             let lx = parseInt(lixo.style.left);
-            let ly = parseInt(lixo.style.top);
             
             // O barco pesca o lixo se estiver perto na horizontal (raio de 70px)
-            // Lixos muito profundos exigem que o barco passe exatamente por cima
             if (Math.abs(lx - x) < 70) {
                 lixo.classList.add("coletado");
                 
