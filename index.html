@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Guardiões da Maré - Recife Antigo v2.0</title>
+    <title>Guardiões da Maré - Recife Pro v3.0</title>
     <style>
         * {
             box-sizing: border-box;
@@ -15,27 +15,38 @@
             font-family: 'Montserrat', Arial, sans-serif;
             user-select: none;
             touch-action: manipulation;
-            background: #021824;
+            background: #010d1a;
         }
         
-        /* CÉU DO RECIFE - FIM DE TARDE */
+        /* CÉU REALISTA DO RECIFE - PÔR DO SOL */
         #ceu {
-            height: 45vh;
-            background: linear-gradient(to bottom, #103042 0%, #295c73 40%, #e65c40 80%, #ffd066 100%);
+            height: 40vh;
+            background: linear-gradient(to bottom, #0f2027 0%, #203a43 40%, #2c5364 60%, #ff6b6b 85%, #ffa07a 100%);
             position: relative;
         }
 
         #sol-recife {
             position: absolute;
-            bottom: 20px;
+            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
-            width: 140px;
-            height: 140px;
-            background: radial-gradient(circle, #fff7d1 30%, #ffab40 80%);
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, #fff3e0 20%, #ff9800 60%, rgba(255,152,0,0) 100%);
             border-radius: 50%;
-            box-shadow: 0 0 80px rgba(255, 171, 64, 0.8);
-            opacity: 0.9;
+            filter: blur(4px);
+            opacity: 0.95;
+        }
+
+        /* SKYLINE / CIDADE DO RECIFE REALISTA */
+        #cidade-recife {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 180px;
+            z-index: 2;
+            pointer-events: none;
         }
 
         /* BARRA SUPERIOR DE PROGRESSO */
@@ -46,28 +57,29 @@
             transform: translateX(-50%);
             width: 90%;
             max-width: 500px;
-            background: rgba(10, 25, 35, 0.85);
-            backdrop-filter: blur(10px);
-            border: 2px solid #ffab40;
-            border-radius: 20px;
+            background: rgba(8, 20, 32, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            border-radius: 16px;
             padding: 10px 20px;
             z-index: 100;
             color: white;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
         .status-info {
             display: flex;
             justify-content: space-between;
             font-size: 14px;
-            font-weight: bold;
+            font-weight: 700;
             margin-bottom: 6px;
+            letter-spacing: 0.5px;
         }
 
         .barra-fundo {
             width: 100%;
-            height: 12px;
-            background: rgba(255, 255, 255, 0.2);
+            height: 10px;
+            background: rgba(255, 255, 255, 0.15);
             border-radius: 10px;
             overflow: hidden;
         }
@@ -75,97 +87,96 @@
         .barra-progresso {
             height: 100%;
             width: 0%;
-            background: linear-gradient(90deg, #2ea043, #56d364);
+            background: linear-gradient(90deg, #00e5ff, #00897b);
             border-radius: 10px;
             transition: width 0.3s ease;
+            box-shadow: 0 0 10px #00e5ff;
         }
 
-        /* CENÁRIO DA CIDADE AO FUNDO (RECIFE ANTIGO E PONTES) */
-        #recife-antigo {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 160px;
-            z-index: 2;
-            pointer-events: none;
-        }
-
-        /* RIO CAPIBARIBE / MAR DE BOA VIAGEM */
+        /* MAR DE BOA VIAGEM / CAPIBARIBE */
         #mar {
             position: relative;
-            height: 55vh;
-            background: linear-gradient(to bottom, #094b66, #04293a, #01141e);
+            height: 60vh;
+            background: linear-gradient(to bottom, #003249 0%, #002233 40%, #00121e 100%);
             overflow: hidden;
         }
 
-        #linha-superficie {
+        /* ONDAS ANIMADAS NA SUPERFÍCIE */
+        .onda {
             position: absolute;
-            top: 0;
+            top: -10px;
             left: 0;
-            width: 100%;
-            height: 12px;
-            background: rgba(255, 255, 255, 0.3);
-            filter: blur(2px);
+            width: 200%;
+            height: 20px;
+            background: repeat-x url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M0,0 C150,90 350,-40 500,40 C650,120 900,10 1200,40 L1200,0 L0,0 Z" fill="rgba(255,255,255,0.15)"></path></svg>');
+            animation: ondaMover 8s linear infinite;
             z-index: 3;
         }
 
-        /* JANGADA E CORDA DE PESCA */
-        #jangada-wrapper {
+        @keyframes ondaMover {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* BARCO MODERNO DE LIMPEZA */
+        #barco-wrapper {
             position: absolute;
-            top: -65px; 
-            left: 60px;
-            width: 100px;
-            height: 100px;
-            transition: left 0.15s linear;
+            top: -45px; 
+            left: 80px;
+            width: 130px;
+            height: 80px;
+            transition: left 0.12s ease-out;
             z-index: 20;
-            animation: balancoMar 3s ease-in-out infinite;
+            animation: balancoBarco 2.5s ease-in-out infinite;
         }
 
         .virado-esquerda {
             transform: scaleX(-1);
         }
 
-        @keyframes balancoMar {
+        @keyframes balancoBarco {
             0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(5px) rotate(2deg); }
+            50% { transform: translateY(3px) rotate(1.5deg); }
         }
 
-        /* REDE DE PESCA LANÇADA */
-        #rede-pesca {
+        /* CABO/CORDA DE AÇO MELHORADA */
+        #corda-pesca {
             position: absolute;
-            width: 4px;
-            background: #ffab40;
+            width: 3px;
+            background: repeating-linear-gradient(to bottom, #b0bec5, #b0bec5 4px, #37474f 4px, #37474f 8px);
             left: 50%;
-            top: 70px;
+            top: 55px;
             height: 0px;
             transform: translateX(-50%);
-            transition: height 0.2s ease-out;
+            transition: height 0.35s cubic-bezier(0.25, 1, 0.5, 1);
             z-index: 15;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.5);
             display: flex;
             justify-content: center;
             align-items: flex-end;
         }
 
-        #rede-pesca::after {
-            content: '🕸️';
-            font-size: 28px;
-            margin-bottom: -15px;
+        /* GARRA / REDE NA PONTA DA CORDA */
+        #corda-pesca::after {
+            content: '⚙️';
+            font-size: 26px;
+            margin-bottom: -14px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
         }
 
-        /* LIXO MARINHO */
+        /* LIXO MARINHO EM VÁRIAS PROFUNDIDADES */
         .lixo-item {
             position: absolute;
-            font-size: 34px;
-            animation: flutuarLixo 4s ease-in-out infinite;
+            font-size: 32px;
+            animation: flutuarLixo 3.5s ease-in-out infinite;
             z-index: 10;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
-            transition: transform 0.3s ease, opacity 0.3s ease;
+            filter: drop-shadow(0 6px 10px rgba(0,0,0,0.6));
+            transition: transform 0.25s ease, opacity 0.25s ease;
         }
 
         @keyframes flutuarLixo {
-            0%, 100% { transform: translateY(0) rotate(-5deg); }
-            50% { transform: translateY(-10px) rotate(5deg); }
+            0%, 100% { transform: translateY(0) rotate(-6deg); }
+            50% { transform: translateY(-8px) rotate(6deg); }
         }
 
         .capturado {
@@ -173,7 +184,7 @@
             opacity: 0 !important;
         }
 
-        /* CONTROLES MOBILE */
+        /* CONTROLES TOUCH */
         #painel-touch {
             position: absolute;
             bottom: 25px;
@@ -189,37 +200,42 @@
         .btn-game {
             width: 70px;
             height: 70px;
-            background: rgba(255, 255, 255, 0.9);
-            border: 3px solid #094b66;
+            background: rgba(15, 32, 39, 0.85);
+            border: 2px solid #00e5ff;
             border-radius: 50%;
-            font-size: 28px;
+            font-size: 26px;
+            color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
             pointer-events: auto;
             cursor: pointer;
+            backdrop-filter: blur(5px);
         }
 
         .btn-game:active {
-            transform: scale(0.9);
-            background: #fff;
+            transform: scale(0.92);
+            background: #00e5ff;
+            color: #000;
         }
 
         .btn-pescar {
             width: 80px;
             height: 80px;
-            background: linear-gradient(135deg, #ff5722, #e64a19);
+            background: linear-gradient(135deg, #00e5ff, #00897b);
             color: white;
-            border-color: #fff;
-            font-size: 36px;
+            border: none;
+            font-size: 34px;
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.5);
         }
 
-        /* TELA DE MENU INICIAL */
+        /* MODAIS E INTERFACE */
         #menu-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(2, 24, 36, 0.95);
+            background: rgba(1, 13, 26, 0.92);
+            backdrop-filter: blur(8px);
             z-index: 1000;
             display: flex;
             align-items: center;
@@ -228,65 +244,72 @@
         }
 
         .card-menu {
-            background: #ffffff;
-            border-radius: 20px;
-            padding: 30px;
+            background: #0a192f;
+            border-radius: 24px;
+            padding: 32px;
             max-width: 480px;
             width: 100%;
             text-align: center;
-            border: 4px solid #ffab40;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-            color: #103042;
+            border: 1px solid #00e5ff;
+            box-shadow: 0 20px 60px rgba(0, 229, 255, 0.2);
+            color: #e6f1ff;
         }
 
         .card-menu h1 {
-            margin: 10px 0;
-            font-size: 28px;
-            color: #d84315;
+            margin: 12px 0;
+            font-size: 26px;
+            color: #00e5ff;
+            letter-spacing: 1px;
         }
 
         .tag-recife {
-            background: #0288d1;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
+            background: rgba(0, 229, 255, 0.15);
+            color: #00e5ff;
+            border: 1px solid #00e5ff;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
             text-transform: uppercase;
         }
 
         .btn-start {
-            margin-top: 20px;
+            margin-top: 22px;
             width: 100%;
             padding: 16px;
             border: none;
-            background: linear-gradient(135deg, #2e7d32, #1b5e20);
-            color: white;
-            font-size: 20px;
-            font-weight: bold;
+            background: linear-gradient(135deg, #00e5ff, #00897b);
+            color: #0a192f;
+            font-size: 18px;
+            font-weight: 800;
             border-radius: 50px;
             cursor: pointer;
-            box-shadow: 0 6px 20px rgba(46, 125, 50, 0.4);
+            box-shadow: 0 6px 20px rgba(0, 229, 255, 0.4);
+            transition: transform 0.2s;
         }
 
-        /* TELA DE VITÓRIA */
+        .btn-start:hover {
+            transform: translateY(-2px);
+        }
+
         #vitoria-modal {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0.8);
-            background: white;
+            background: #0a192f;
             padding: 30px;
-            border-radius: 20px;
-            border: 4px solid #4caf50;
+            border-radius: 24px;
+            border: 2px solid #00e5ff;
             text-align: center;
             z-index: 2000;
             display: none;
             opacity: 0;
             transition: all 0.3s ease;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
             width: 85%;
             max-width: 400px;
+            color: #fff;
         }
 
         #vitoria-modal.ativo {
@@ -298,27 +321,27 @@
 </head>
 <body>
 
-<!-- MENU DE INÍCIO -->
+<!-- TELA INICIAL -->
 <div id="menu-overlay">
     <div class="card-menu">
         <span class="tag-recife">📍 Recife - Pernambuco</span>
-        <h1>Guardiões da Maré ⛵</h1>
-        <p style="color: #555; font-size: 14px; line-height: 1.5;">
-            Ajude a limpar a bacia do <b>Rio Capibaribe</b> e as praias do Recife! Navegue com sua jangada e jogue a rede para coletar os resíduos antes que afundem.
+        <h1>EcoBarco Recife 🛥️</h1>
+        <p style="color: #8892b0; font-size: 14px; line-height: 1.6;">
+            Pilote a nova embarcação sustentável de coleta pela orla do Recife. Lance o cabo de aço profundo para resgatar os resíduos do fundo do mar!
         </p>
-        <div style="background: #f5f5f5; padding: 12px; border-radius: 10px; text-align: left; margin: 15px 0; font-size: 13px;">
-            <b>🎮 Como Jogar:</b><br>
-            • <b>A / D</b> ou setas: Movimentam a jangada<br>
-            • <b>F</b> ou Botão da Rede: Lança a rede de pesca
+        <div style="background: rgba(255,255,255,0.05); padding: 14px; border-radius: 12px; text-align: left; margin: 18px 0; font-size: 13px; color: #ccd6f6;">
+            <b>🎮 Controles:</b><br>
+            • <b>A / D</b> ou Setas: Navegar a embarcação<br>
+            • <b>F</b> ou Botão Raio: Lançar o cabo longo
         </div>
-        <button class="btn-start" id="btn-iniciar-jogo">INICIAR MISSÃO 🌊</button>
+        <button class="btn-start" id="btn-iniciar-jogo">INICIAR OPERAÇÃO 🌊</button>
     </div>
 </div>
 
-<!-- HUD DE STATUS DA MISSÃO -->
+<!-- STATUS HUD -->
 <div id="barra-status">
     <div class="status-info">
-        <span>🗑️ Limpeza do Mar</span>
+        <span>🌊 LIMPEZA MARINHA</span>
         <span id="texto-progresso">0 / 20</span>
     </div>
     <div class="barra-fundo">
@@ -329,63 +352,80 @@
 <div id="ceu">
     <div id="sol-recife"></div>
     
-    <!-- DESENHO DA CIDADE DO RECIFE (PONTE & PRÉDIOS HISTÓRICOS) -->
-    <svg id="recife-antigo" viewBox="0 0 1000 160" preserveAspectRatio="none">
-        <!-- Sobrados coloridos de Recife Antigo -->
-        <rect x="50" y="70" width="40" height="90" fill="#e53935" />
-        <rect x="90" y="50" width="45" height="110" fill="#fdd835" />
-        <rect x="135" y="65" width="38" height="95" fill="#1e88e5" />
+    <!-- DESENHO REALISTA DA ORLA E PONTES DO RECIFE -->
+    <svg id="cidade-recife" viewBox="0 0 1200 180" preserveAspectRatio="none">
+        <!-- Silhueta dos Prédios de Boa Viagem / Recife Antigo ao Fundo -->
+        <path d="
+            M 0,180 
+            L 0,90 L 25,90 L 25,180 
+            L 35,180 L 35,60 L 65,60 L 65,180 
+            L 80,180 L 80,40 L 110,40 L 110,180 
+            L 125,180 L 125,75 L 150,75 L 150,180
+            L 200,180 L 200,110 L 230,110 L 230,180
+            L 300,180 L 300,50 L 335,50 L 335,180
+            L 350,180 L 350,85 L 380,85 L 380,180
+            L 450,180 L 450,30 L 490,30 L 490,180
+            L 520,180 L 520,70 L 550,70 L 550,180
+            L 650,180 L 650,95 L 680,95 L 680,180
+            L 720,180 L 720,45 L 755,45 L 755,180
+            L 850,180 L 850,80 L 880,80 L 880,180
+            L 920,180 L 920,35 L 960,35 L 960,180
+            L 1000,180 L 1000,65 L 1030,65 L 1030,180
+            L 1100,180 L 1100,85 L 1140,85 L 1140,180
+            L 1200,180 Z" fill="#0f2b3c" opacity="0.6" />
+
+        <!-- Ponte de Ferro & Ilha do Bairro do Recife -->
+        <rect x="180" y="130" width="300" height="10" fill="#1c3d52" />
+        <path d="M 190,130 Q 230,100 270,130 Q 310,100 350,130 Q 390,100 430,130 Q 470,100 480,130" fill="none" stroke="#264e68" stroke-width="4" />
         
-        <!-- Ponte Maurício de Nassau (Arcos) -->
-        <path d="M 200,160 Q 250,110 300,160 Q 350,110 400,160 Q 450,110 500,160 Q 550,110 600,160" fill="none" stroke="#37474f" stroke-width="8" />
-        <line x1="200" y1="130" x2="600" y2="130" stroke="#263238" stroke-width="6" />
+        <!-- Parque das Esculturas (Coluna de Cristal) -->
+        <path d="M 1080,180 L 1088,70 L 1096,180 Z" fill="#1c3d52" />
+        <circle cx="1092" cy="65" r="5" fill="#00e5ff" />
 
-        <!-- Torre do Parque das Esculturas -->
-        <path d="M 750,160 L 760,40 L 770,160 Z" fill="#8d6e63" />
-        <circle cx="765" cy="35" r="7" fill="#ffb300" />
-
-        <!-- Manguezais -->
-        <path d="M 850,160 Q 870,120 890,160 M 880,160 Q 900,110 920,160 M 910,160 Q 940,120 970,160" stroke="#2e7d32" stroke-width="6" fill="none" />
+        <!-- Vegetação de Mangue na Margem -->
+        <path d="M 0,180 Q 30,150 60,180 M 50,180 Q 90,140 130,180 M 550,180 Q 590,150 630,180 M 610,180 Q 650,145 690,180" stroke="#1b4d3e" stroke-width="6" fill="none" />
     </svg>
 </div>
 
 <div id="mar">
-    <div id="linha-superficie"></div>
+    <div class="onda"></div>
 
-    <!-- JANGADA DO JOGADOR -->
-    <div id="jangada-wrapper">
-        <svg viewBox="0 0 100 100" width="100%" height="100%">
-            <!-- Mastro -->
-            <line x1="50" y1="85" x2="50" y2="10" stroke="#4e342e" stroke-width="4" />
-            <!-- Vela Triangular com Listras Pernambucanas -->
-            <path d="M 52,15 L 95,60 L 52,70 Z" fill="#d84315" />
-            <path d="M 52,30 L 80,55 L 52,60 Z" fill="#ffffff" />
-            <!-- Casco da Jangada -->
-            <rect x="10" y="78" width="80" height="12" rx="5" fill="#6d4c41" />
-            <rect x="5" y="85" width="90" height="8" rx="4" fill="#4e342e" />
+    <!-- EMBARCAÇÃO MODERNA (CATAMARÃ ECOLÓGICO) -->
+    <div id="barco-wrapper">
+        <svg viewBox="0 0 160 90" width="100%" height="100%">
+            <!-- Luzes de Navegação -->
+            <circle cx="140" cy="32" r="3" fill="#ff1744" />
+            <!-- Cabine Moderna de Vidro -->
+            <path d="M 45,45 L 65,22 L 110,22 L 125,45 Z" fill="#102a43" stroke="#00e5ff" stroke-width="1.5" />
+            <path d="M 70,26 L 105,26 L 115,42 L 70,42 Z" fill="#81e6d9" opacity="0.7" />
+            <!-- Casco Hidrodinâmico -->
+            <path d="M 15,58 L 145,58 L 130,76 L 25,76 Z" fill="#eceff1" />
+            <path d="M 10,52 L 150,52 L 140,62 L 20,62 Z" fill="#00e5ff" />
+            <!-- Detalhe do Motor de Polpa -->
+            <rect x="5" y="50" width="12" height="20" rx="3" fill="#37474f" />
         </svg>
-        <div id="rede-pesca"></div>
+        <div id="corda-pesca"></div>
     </div>
 </div>
 
-<!-- CONTROLES TÁTEIS PARA CELULAR -->
+<!-- PAINEL TOUCH -->
 <div id="painel-touch">
-    <div style="display: flex; gap: 12px;">
+    <div style="display: flex; gap: 14px;">
         <div class="btn-game" id="btn-left">◀</div>
         <div class="btn-game" id="btn-right">▶</div>
     </div>
-    <div class="btn-game btn-pescar" id="btn-action">🕸️</div>
+    <div class="btn-game btn-pescar" id="btn-action">⚡</div>
 </div>
 
-<!-- MODAL DE VITÓRIA -->
+<!-- TELA DE VITÓRIA -->
 <div id="vitoria-modal">
-    <h2 style="color: #2e7d32; margin-top: 0;">🎉 Recife Agradece!</h2>
-    <p style="color: #555; font-size: 15px;">Você removeu 20 resíduos do oceano e ajudou a proteger a vida marinha de Pernambuco!</p>
-    <button class="btn-start" onclick="location.reload()">JOGAR NOVAMENTE 🔄</button>
+    <h2 style="color: #00e5ff; margin-top: 0;">🎉 Missão Cumprida!</h2>
+    <p style="color: #8892b0; font-size: 15px; line-height: 1.5;">O EcoBarco recolheu 20 resíduos nas águas de Recife. A fauna marinha agradece!</p>
+    <button class="btn-start" onclick="location.reload()">NOVA VARREDURA 🔄</button>
 </div>
 
 <script>
-// GERADOR DE SOM SINTETIZADO (SEM ARQUIVOS EXTERNOS)
+// SOM SINTETIZADO
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioCtx;
 
@@ -393,21 +433,21 @@ function tocarSomColeta() {
     if (!audioCtx) audioCtx = new AudioContext();
     let osc = audioCtx.createOscillator();
     let gain = audioCtx.createGain();
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(440, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
-    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(520, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1040, audioCtx.currentTime + 0.12);
+    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
     osc.connect(gain);
     gain.connect(audioCtx.destination);
     osc.start();
-    osc.stop(audioCtx.currentTime + 0.15);
+    osc.stop(audioCtx.currentTime + 0.12);
 }
 
-// LÓGICA PRINCIPAL
+// VARIÁVEIS DO JOGO
 const mar = document.getElementById("mar");
-const jangada = document.getElementById("jangada-wrapper");
-const redePesca = document.getElementById("rede-pesca");
+const barco = document.getElementById("barco-wrapper");
+const cordaPesca = document.getElementById("corda-pesca");
 const barraFill = document.getElementById("barra-fill");
 const textoProgresso = document.getElementById("texto-progresso");
 const menuOverlay = document.getElementById("menu-overlay");
@@ -417,67 +457,68 @@ let posX = 80;
 let coletados = 0;
 const totalLixos = 20;
 let jogoAtivo = false;
-let lancandoRede = false;
+let lancandoCorda = false;
 
-const tiposLixo = ["🍼", "🥫", "🛞", "📦", "🛍️", "🥤", "🍾", "👟"];
+const tiposLixo = ["🍼", "🥫", "🛞", "📦", "🛍️", "🥤", "🍾", "👟", "🔋", "🛢️"];
 
-// Gerar Lixos pelo Mar
+// Gerar Lixos espalhados até o fundo
 for (let i = 0; i < totalLixos; i++) {
     let lixo = document.createElement("div");
     lixo.className = "lixo-item";
     lixo.innerHTML = tiposLixo[Math.floor(Math.random() * tiposLixo.length)];
     
-    // Posições variadas
-    lixo.style.left = (60 + (i * (window.innerWidth - 120) / totalLixos) + (Math.random() * 30 - 15)) + "px";
-    lixo.style.top = (60 + Math.random() * 220) + "px";
-    lixo.style.animationDelay = (Math.random() * 2) + "s";
+    // Distribuição pela largura e profundidade (até 360px de profundidade)
+    lixo.style.left = (50 + (i * (window.innerWidth - 120) / totalLixos) + (Math.random() * 40 - 20)) + "px";
+    lixo.style.top = (50 + Math.random() * 320) + "px";
+    lixo.style.animationDelay = (Math.random() * 2.5) + "s";
     
     mar.appendChild(lixo);
 }
 
-// Iniciar Jogo
+// Iniciar
 document.getElementById("btn-iniciar-jogo").addEventListener("click", () => {
     menuOverlay.style.display = "none";
     jogoAtivo = true;
 });
 
-// Movimentação
+// Movimento do Barco
 function mover(direcao) {
     if (!jogoAtivo) return;
-    const velocidade = 35;
+    const velocidade = 40;
     
     if (direcao === 'esquerda' && posX > 20) {
         posX -= velocidade;
-        jangada.classList.add("virado-esquerda");
-    } else if (direcao === 'direita' && posX < window.innerWidth - 110) {
+        barco.classList.add("virado-esquerda");
+    } else if (direcao === 'direita' && posX < window.innerWidth - 140) {
         posX += velocidade;
-        jangada.classList.remove("virado-esquerda");
+        barco.classList.remove("virado-esquerda");
     }
     
-    jangada.style.left = posX + "px";
+    barco.style.left = posX + "px";
 }
 
-// Ação de Pescar com a Rede
+// Lançamento da Corda Longa
 function pescar() {
-    if (!jogoAtivo || lancandoRede) return;
-    lancandoRede = true;
+    if (!jogoAtivo || lancandoCorda) return;
+    lancandoCorda = true;
 
-    // Animação da rede descendo
-    redePesca.style.height = "180px";
+    // Alcance expandido para alcançar o fundo do mar (380px)
+    const profundidadeAlcance = 380;
+    cordaPesca.style.height = profundidadeAlcance + "px";
 
     setTimeout(() => {
-        // Verificar colisão com os lixos
+        // Detecção de colisão ajustada
         document.querySelectorAll(".lixo-item:not(.capturado)").forEach(lixo => {
             let lixoX = parseInt(lixo.style.left);
             let lixoY = parseInt(lixo.style.top);
 
-            // Se o lixo estiver no alcance horizontal da jangada e vertical da rede
-            if (Math.abs(lixoX - posX) < 60 && lixoY <= 240) {
+            // Verifica alinhamento horizontal e profundidade alcançada pela corda
+            if (Math.abs(lixoX - (posX + 35)) < 65 && lixoY <= profundidadeAlcance + 40) {
                 lixo.classList.add("capturado");
                 coletados++;
                 tocarSomColeta();
 
-                // Atualizar HUD
+                // Atualiza Barra
                 let porcentagem = (coletados / totalLixos) * 100;
                 barraFill.style.width = porcentagem + "%";
                 textoProgresso.textContent = `${coletados} / ${totalLixos}`;
@@ -489,20 +530,20 @@ function pescar() {
             }
         });
 
-        // Recolher a rede
-        redePesca.style.height = "0px";
-        setTimeout(() => { lancandoRede = false; }, 200);
-    }, 200);
+        // Recolhe o cabo
+        cordaPesca.style.height = "0px";
+        setTimeout(() => { lancandoCorda = false; }, 350);
+    }, 350);
 }
 
-// Escutadores de Teclado
+// Controles Teclado
 document.addEventListener("keydown", (e) => {
     if (e.key === "a" || e.key === "A" || e.key === "ArrowLeft") mover('esquerda');
     if (e.key === "d" || e.key === "D" || e.key === "ArrowRight") mover('direita');
     if (e.key === "f" || e.key === "F" || e.key === " ") pescar();
 });
 
-// Escutadores Touch para Mobile
+// Controles Celular
 document.getElementById("btn-left").addEventListener("click", () => mover('esquerda'));
 document.getElementById("btn-right").addEventListener("click", () => mover('direita'));
 document.getElementById("btn-action").addEventListener("click", () => pescar());
