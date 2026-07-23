@@ -2,17 +2,19 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Guardiões da Maré</title>
     <style>
         * {
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
         body {
             margin: 0;
             overflow: hidden;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             user-select: none;
+            touch-action: manipulation;
         }
         
         /* Céu com degradê de fim de tarde/pôr do sol suave */
@@ -62,7 +64,7 @@
             top: -45px; 
             left: 50px;
             font-size: 55px;
-            transition: left 0.2s ease-out, transform 0.2s ease;
+            transition: left 0.15s ease-out, transform 0.2s ease;
             z-index: 10;
             animation: flutuar 3s ease-in-out infinite;
             transform-origin: bottom center;
@@ -137,6 +139,56 @@
             padding-top: 5px;
         }
 
+        /* Controles Touch/Mobile */
+        #controles-mobile {
+            position: absolute;
+            bottom: 25px;
+            left: 0;
+            width: 100%;
+            display: none; /* Ativado via JS se for dispositivo móvel */
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 500;
+            pointer-events: none;
+        }
+
+        .grupo-botoes {
+            display: flex;
+            gap: 15px;
+            pointer-events: auto;
+        }
+
+        .btn-touch {
+            width: 65px;
+            height: 65px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            font-size: 26px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            cursor: pointer;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .btn-touch:active {
+            transform: scale(0.92);
+            background: rgba(255, 255, 255, 1);
+        }
+
+        .btn-coletar-mobile {
+            width: 75px;
+            height: 75px;
+            background: linear-gradient(135deg, #27ae60, #1e8449);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.8);
+            font-size: 30px;
+        }
+
         /* Mensagem de Vitória Estilizada */
         #msg {
             position: absolute;
@@ -154,6 +206,8 @@
             display: none;
             z-index: 1000;
             animation: aparecer 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 80%;
+            max-width: 450px;
         }
 
         @keyframes aparecer {
@@ -312,13 +366,24 @@
 <div id="hud">
     <div class="contadores">💰 Moedas: <span id="coins">0</span></div>
     <div class="contadores">🗑️ Limpo: <span id="trash">0</span>/10</div>
-    <div class="tutoriais">⌨️ Controles: <b>A / D</b> movem • <b>F</b> coleta o lixo</div>
+    <div class="tutoriais" id="dica-controles">⌨️ Controles: <b>A / D</b> movem • <b>F</b> coleta o lixo</div>
 </div>
 
 <div id="ceu"></div>
 <div id="mar">
     <div id="linha-agua"></div>
     <div id="barco-container">🛶</div>
+</div>
+
+<!-- Controles na Tela para Celulares/Tablets -->
+<div id="controles-mobile">
+    <div class="grupo-botoes">
+        <button class="btn-touch" id="btn-esquerda">◀</button>
+        <button class="btn-touch" id="btn-direita">▶</button>
+    </div>
+    <div class="grupo-botoes">
+        <button class="btn-touch btn-coletar-mobile" id="btn-coletar">🎣</button>
+    </div>
 </div>
 
 <div id="msg">
@@ -332,6 +397,7 @@ const barcoContainer = document.getElementById("barco-container");
 const telaInicial = document.getElementById("tela-inicial");
 const hud = document.getElementById("hud");
 const btnIniciar = document.getElementById("btn-iniciar");
+const controlesMobile = document.getElementById("controles-mobile");
 
 let x = 100;
 let moedas = 0;
@@ -340,84 +406,106 @@ const totalLixos = 10;
 const emojis = ["🍼","🥫","🛞","📦","🗑️","🍾"];
 let jogoIniciado = false;
 
-// Gerar lixo espalhado de forma mais realista pelo mapa
+// Detecta se é um dispositivo móvel/touchscreen
+const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+// Gerar lixo espalhado pelo mapa
 for(let i = 0; i < totalLixos; i++) {
     let lixo = document.createElement("div");
     lixo.className = "lixo";
     lixo.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
     
-    // Posição horizontal ao longo da tela
     lixo.style.left = (150 + (i * (window.innerWidth - 300) / totalLixos) + (Math.random() * 50 - 25)) + "px";
-    
-    // Profundidades variadas (boiar em alturas diferentes no mar)
     lixo.style.top = (40 + Math.random() * 250) + "px"; 
-    
-    // Delay aleatório na animação para não boiarem todos iguais e duros
     lixo.style.animationDelay = (Math.random() * 2) + "s";
     
     mar.appendChild(lixo);
 }
 
-// Ação para começar o jogo ao clicar no botão
+// Ação para começar o jogo
 btnIniciar.addEventListener("click", () => {
     telaInicial.style.opacity = "0";
     setTimeout(() => {
         telaInicial.style.display = "none";
-        hud.style.display = "block"; // Mostra o HUD do jogo
-        jogoIniciado = true; // Ativa os controles
+        hud.style.display = "block";
+        jogoIniciado = true;
+
+        if (isTouchDevice) {
+            controlesMobile.style.display = "flex";
+            document.getElementById("dica-controles").innerHTML = "📱 Use os botões na tela para jogar";
+        }
     }, 500);
 });
 
+// Funções de movimentação e coleta
+function moverEsquerda() {
+    const limiteEsquerda = 10;
+    if (x > limiteEsquerda) {
+        x -= 35;
+        barcoContainer.classList.add("olhando-esquerda");
+        barcoContainer.style.left = x + "px";
+    }
+}
+
+function moverDireita() {
+    const limiteDireita = window.innerWidth - 80;
+    if (x < limiteDireita) {
+        x += 35;
+        barcoContainer.classList.remove("olhando-esquerda");
+        barcoContainer.style.left = x + "px";
+    }
+}
+
+function coletarLixo() {
+    document.querySelectorAll(".lixo:not(.coletado)").forEach(lixo => {
+        let lx = parseInt(lixo.style.left);
+        
+        if (Math.abs(lx - x) < 70) {
+            lixo.classList.add("coletado");
+            setTimeout(() => { lixo.remove(); }, 300);
+
+            moedas += 10;
+            coletados++;
+            
+            document.getElementById("coins").textContent = moedas;
+            document.getElementById("trash").textContent = coletados;
+
+            if (coletados === totalLixos) {
+                document.getElementById("msg").style.display = "block";
+            }
+        }
+    });
+}
+
+// Controles via Teclado
 document.addEventListener("keydown", e => {
-    // Se o jogo não tiver começado, ignora as teclas de controle
     if (!jogoIniciado) return;
 
-    // Limites de tela para o barco não sumir
-    const limiteEsquerda = 10;
-    const limiteDireita = window.innerWidth - 80;
-
-    if (e.key === "a" || e.key === "A") {
-        if (x > limiteEsquerda) {
-            x -= 35;
-            barcoContainer.classList.add("olhando-esquerda"); // Vira o barco para a esquerda
-        }
-    }
-    if (e.key === "d" || e.key === "D") {
-        if (x < limiteDireita) {
-            x += 35;
-            barcoContainer.classList.remove("olhando-esquerda"); // Vira o barco para a direita
-        }
-    }
-    
-    // Atualiza posição do barco
-    barcoContainer.style.left = x + "px";
-
-    // Mecânica de Coleta (Pescar)
-    if (e.key === "f" || e.key === "F") {
-        document.querySelectorAll(".lixo:not(.coletado)").forEach(lixo => {
-            let lx = parseInt(lixo.style.left);
-            
-            // O barco pesca o lixo se estiver perto na horizontal (raio de 70px)
-            if (Math.abs(lx - x) < 70) {
-                lixo.classList.add("coletado");
-                
-                // Remove do HTML após a animação de sumir terminar
-                setTimeout(() => { lixo.remove(); }, 300);
-
-                moedas += 10;
-                coletados++;
-                
-                document.getElementById("coins").textContent = moedas;
-                document.getElementById("trash").textContent = coletados;
-
-                // Condição de vitória
-                if (coletados === totalLixos) {
-                    document.getElementById("msg").style.display = "block";
-                }
-            }
-        });
-    }
+    if (e.key === "a" || e.key === "A") moverEsquerda();
+    if (e.key === "d" || e.key === "D") moverDireita();
+    if (e.key === "f" || e.key === "F") coletarLixo();
 });
+
+// Controles via Botões Touchscreen
+document.getElementById("btn-esquerda").addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    if (jogoIniciado) moverEsquerda();
+});
+
+document.getElementById("btn-direita").addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    if (jogoIniciado) moverDireita();
+});
+
+document.getElementById("btn-coletar").addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    if (jogoIniciado) coletarLixo();
+});
+
+// Suporte para clique com mouse nos botões na tela (para testes no desktop)
+document.getElementById("btn-esquerda").addEventListener("click", () => { if (jogoIniciado) moverEsquerda(); });
+document.getElementById("btn-direita").addEventListener("click", () => { if (jogoIniciado) moverDireita(); });
+document.getElementById("btn-coletar").addEventListener("click", () => { if (jogoIniciado) coletarLixo(); });
 </script>
 </body>
 </html>
